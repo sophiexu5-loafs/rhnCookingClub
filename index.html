@@ -989,8 +989,8 @@
         <input type="text" class="signup-dish" placeholder="What are you bringing?" autocomplete="off" />
         <input type="url" class="signup-recipe" placeholder="Recipe link (optional)" autocomplete="off" />
         <div class="signup-form-buttons">
-          <button class="btn-signup" onclick="submitSignup(this)">Sign Up</button>
-          <button class="btn-cancel" onclick="cancelSignup(this)">Cancel</button>
+          <button class="btn-signup" onclick="event.stopPropagation(); submitSignup(this)">Sign Up</button>
+          <button class="btn-cancel" onclick="event.stopPropagation(); cancelSignup(this)">Cancel</button>
         </div>
       </div>
     `;
@@ -1045,11 +1045,13 @@
   }
 
   function cancelSignup(btn) {
+    event.stopPropagation();
     const card = btn.closest('.dish-card');
+    const item = card._item;
     card.classList.remove('signing-up');
     card.classList.add('empty');
     card.innerHTML = '<div class="dish-empty-text">Open slot — claim it!</div>';
-    card.addEventListener('click', () => openSignupForm(card, card._item));
+    card.onclick = () => openSignupForm(card, item);
   }
 
   // ===== INITIALIZE =====
