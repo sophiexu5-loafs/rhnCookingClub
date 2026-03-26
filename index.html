@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Russian Hill Cooking Club</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --coral: #FF6B6B;
+    --peach: #FFEAA7;
+    --mint: #55EFC4;
+    --sky: #74B9FF;
+    --lavender: #A29BFE;
+    --pink: #FD79A8;
+    --orange: #FAB1A0;
+    --cream: #FFF9F0;
+    --dark: #2D3436;
+    --gray: #636E72;
+    --light-gray: #DFE6E9;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    overflow-x: hidden;
+  }
+
+  /* ===== FLOATING FOOD EMOJIS ===== */
+  .floating-emojis {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .floating-emojis span {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0.12;
+    animation: floatUp 18s linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(110vh) rotate(0deg); }
+    100% { transform: translateY(-10vh) rotate(360deg); }
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 60px 20px 70px;
+    background: linear-gradient(135deg, var(--coral) 0%, var(--pink) 40%, var(--lavender) 100%);
+    color: white;
+    overflow: hidden;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 60px;
+    background: var(--cream);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+  .club-name {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+    margin-bottom: 8px;
+  }
+  .club-subtitle {
+    font-size: 1.15rem;
+    opacity: 0.9;
+    font-weight: 400;
+  }
+
+  /* ===== NAV TABS ===== */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 30px auto 10px;
+    position: relative;
+    z-index: 2;
+    flex-wrap: wrap;
+    padding: 0 20px;
+  }
+  .tab-btn {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    color: var(--gray);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .tab-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--coral), var(--pink));
+    color: white;
+    box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+  }
+
+  /* ===== MAIN CONTAINER ===== */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+  .page { display: none; animation: fadeIn 0.4s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== THEME CARD ===== */
+  .theme-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .theme-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--coral), var(--peach), var(--mint), var(--sky), var(--lavender), var(--pink));
+  }
+  .theme-emoji { font-size: 4rem; margin-bottom: 12px; }
+  .theme-label {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--pink);
+    margin-bottom: 4px;
+  }
+  .theme-name {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+  .theme-description {
+    color: var(--gray);
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto 16px;
+  }
+  .event-details {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .event-detail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: var(--gray);
+  }
+  .event-detail .icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+  }
+  .event-detail:nth-child(1) .icon { background: #FFF0F0; }
+  .event-detail:nth-child(2) .icon { background: #F0F0FF; }
+  .event-detail:nth-child(3) .icon { background: #F0FFF5; }
+
+  /* ===== CATEGORY SECTIONS ===== */
+  .category-section {
+    margin-bottom: 24px;
+  }
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .category-icon {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .cat-appetizer .category-icon { background: #FFF3E0; }
+  .cat-main .category-icon { background: #FFEBEE; }
+  .cat-dessert .category-icon { background: #F3E5F5; }
+  .cat-beverage .category-icon { background: #E0F7FA; }
+
+  .category-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+  }
+
+  /* ===== DISH CARDS ===== */
+  .dish-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .dish-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+  }
+  .dish-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+  .dish-card.filled { border-color: var(--mint); }
+  .dish-card.empty { border: 2px dashed var(--light-gray); background: rgba(255,255,255,0.6); }
+
+  .dish-member {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .dish-name {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+  .dish-empty-text {
+    color: var(--light-gray);
+    font-style: italic;
+    font-size: 0.95rem;
+    text-align: center;
+    padding: 10px 0;
+  }
+  .recipe-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, var(--coral), var(--pink));
+    color: white;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .recipe-link:hover { transform: scale(1.05); box-shadow: 0 3px 10px rgba(255,107,107,0.3); }
+
+  .dietary-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .dietary-tag {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    background: #F0FFF4;
+    color: #27AE60;
+  }
+  .dietary-tag.gf { background: #FFF8E1; color: #F39C12; }
+  .dietary-tag.v { background: #E8F5E9; color: #2E7D32; }
+  .dietary-tag.vg { background: #F1F8E9; color: #558B2F; }
+  .dietary-tag.df { background: #E3F2FD; color: #1565C0; }
+  .dietary-tag.nf { background: #FFF3E0; color: #E65100; }
+
+  /* ===== SIGN-UP FORM ===== */
+  .signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .signup-form input {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    padding: 10px 14px;
+    border: 2px solid var(--light-gray);
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.2s ease;
+    background: var(--cream);
+  }
+  .signup-form input:focus {
+    border-color: var(--coral);
+  }
+  .signup-form input::placeholder {
+    color: #B2BEC3;
+  }
+  .signup-form-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .btn-signup {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: linear-gradient(135deg, var(--coral), var(--pink));
+    color: white;
+  }
+  .btn-signup:hover { transform: scale(1.05); box-shadow: 0 3px 10px rgba(255,107,107,0.3); }
+  .btn-cancel {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 20px;
+    border: 2px solid var(--light-gray);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+    color: var(--gray);
+  }
+  .btn-cancel:hover { background: var(--cream); }
+
+  .dish-card.empty { cursor: pointer; }
+  .dish-card.empty:hover {
+    border-color: var(--coral);
+    background: rgba(255,255,255,0.9);
+  }
+  .dish-card.signing-up {
+    border: 2px solid var(--coral) !important;
+    background: white !important;
+    cursor: default;
+  }
+
+  /* ===== PAST EVENTS ===== */
+  .past-event-card {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  .past-event-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 5px;
+  }
+  .past-event-card:nth-child(1)::before { background: var(--coral); }
+  .past-event-card:nth-child(2)::before { background: var(--sky); }
+  .past-event-card:nth-child(3)::before { background: var(--mint); }
+  .past-event-card:nth-child(4)::before { background: var(--lavender); }
+
+  .past-event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .past-event-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  .past-event-date {
+    font-size: 0.85rem;
+    color: var(--gray);
+    background: var(--cream);
+    padding: 4px 14px;
+    border-radius: 20px;
+  }
+  .past-event-dishes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .past-dish {
+    background: var(--cream);
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+  }
+  .past-dish strong { font-weight: 600; }
+  .past-dish .by { color: var(--gray); }
+
+  /* ===== HOW IT WORKS ===== */
+  .how-it-works {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+  .how-it-works h3 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .steps {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  .step {
+    text-align: center;
+    flex: 1;
+    min-width: 150px;
+    max-width: 200px;
+  }
+  .step-number {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 auto 10px;
+  }
+  .step:nth-child(1) .step-number { background: var(--coral); }
+  .step:nth-child(2) .step-number { background: var(--sky); }
+  .step:nth-child(3) .step-number { background: var(--mint); }
+  .step p { font-size: 0.9rem; color: var(--gray); line-height: 1.5; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--gray);
+    font-size: 0.85rem;
+  }
+  footer a { color: var(--coral); text-decoration: none; font-weight: 600; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 600px) {
+    .club-name { font-size: 2.4rem; }
+    .theme-name { font-size: 1.6rem; }
+    .theme-card { padding: 28px 20px; }
+    .event-details { gap: 14px; }
+    .dish-grid { grid-template-columns: 1fr; }
+    .tabs { gap: 8px; }
+    .tab-btn { padding: 10px 20px; font-size: 0.95rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating background emojis -->
+<div class="floating-emojis" id="floatingEmojis"></div>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="club-name">Russian Hill Cooking Club</div>
+</header>
+
+<!-- ===== TAB NAVIGATION ===== -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showPage('upcoming')">Next Dinner</button>
+  <button class="tab-btn" onclick="showPage('archive')">Past Dinners</button>
+  <button class="tab-btn" onclick="showPage('howto')">How It Works</button>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="container">
+
+  <!-- PAGE: UPCOMING DINNER -->
+  <div class="page active" id="page-upcoming">
+
+    <!-- Theme Card -->
+    <div class="theme-card">
+      <div class="theme-emoji">🍋</div>
+      <div class="theme-label">April's Theme</div>
+      <div class="theme-name">Samin Nosrat — Our Beloved East Bay Chef</div>
+      <div class="theme-description">
+        Whether you draw inspiration from her groundbreaking <em>Salt, Fat, Acid, Heat</em> — which taught us that mastering four elements is the key to great cooking — or her newest cookbook <em>Good Things</em>, full of warm, generous recipes meant to be shared, pick a dish that channels Samin's joyful, flavor-first spirit.
+      </div>
+      <div class="event-details">
+        <div class="event-detail">
+          <div class="icon">📅</div>
+          <span>April 9th, 2026</span>
+        </div>
+        <div class="event-detail">
+          <div class="icon">🕡</div>
+          <span>6:30 PM</span>
+        </div>
+        <div class="event-detail">
+          <div class="icon">🏠</div>
+          <span>Hosted by Susan Gage</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appetizers -->
+    <div class="category-section cat-appetizer">
+      <div class="category-header">
+        <div class="category-icon">🥗</div>
+        <div class="category-title">Appetizers</div>
+      </div>
+      <div class="dish-grid">
+        <div class="dish-card empty">
+          <div class="dish-empty-text">Open slot — claim it!</div>
+        </div>
+        <div class="dish-card empty">
+          <div class="dish-empty-text">Open slot — claim it!</div>
+        </div>
+        <div class="dish-card empty">
+          <div class="dish-empty-text">Open slot — claim it!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mains -->
+    <div class="category-section cat-main">
+      <div class="category-header">
+        <div class="category-icon">🍲</div>
+        <div class="category-title">Mains</div>
+      </div>
+      <div class="dish-grid">
+        <div class="dish-card empty">
+          <div class="dish-empty-text">Open slot — claim it!</div>
+        </div>
+        <div class="dish-card empty">
+          <div class="dish-empty-text">Open slot — claim it!</div>
+        </div>
+        <div class="dish-card empty">
+          <div class="dish-empty-text">Open slot — claim it!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desserts -->
+    <div class="category-section cat-dessert">
+      <div class="category-header">
+        <div class="category-icon">🍰</div>
+        <div class="category-title">Desserts</div>
+      </div>
+      <div class="dish-grid">
+        <div class="dish-card empty">
+          <div class="dish-empty-text">Open slot — claim it!</div>
+        </div>
+        <div class="dish-card empty">
+          <div class="dish-empty-text">Open slot — claim it!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beverages -->
+    <div class="category-section cat-beverage">
+      <div class="category-header">
+        <div class="category-icon">🍹</div>
+        <div class="category-title">Beverages</div>
+      </div>
+      <div class="dish-grid">
+        <div class="dish-card empty">
+          <div class="dish-empty-text">Open slot — claim it!</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end upcoming page -->
+
+  <!-- PAGE: PAST DINNERS -->
+  <div class="page" id="page-archive">
+
+    <!-- Mar 2026 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">🌱 Spring Forward Into New Beginnings</div>
+        <div class="past-event-date">Mar 12, 2026 — Hosted by Nicole</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><strong>Cream of Artichoke Soup</strong> <span class="by">by Julie</span></div>
+        <div class="past-dish"><strong>Green Goddess Salad</strong> <span class="by">by Anne</span></div>
+        <div class="past-dish"><strong>Cream Puffs</strong> <span class="by">by Sandy</span></div>
+      </div>
+    </div>
+
+    <!-- Feb 2026 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">🫖 Tea Party</div>
+        <div class="past-event-date">Feb 22, 2026 — Hosted by Anne</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><strong>Scones</strong> <span class="by">by Sandy</span></div>
+        <div class="past-dish"><strong>Vanilla Petit Fours</strong> <span class="by">by Julie</span></div>
+        <div class="past-dish"><strong>Salty Chocolaty Cookies</strong> <span class="by">by Anne</span></div>
+        <div class="past-dish"><strong>Mini Sausage Rolls</strong> <span class="by">by Sophie</span></div>
+        <div class="past-dish"><strong>Tea Sandwiches</strong> <span class="by">by Susan Gage</span></div>
+        <div class="past-dish"><strong>Savory Tart</strong> <span class="by">by Bianca Forrester</span></div>
+        <div class="past-dish"><strong>Cheddar Cheese Tea Sandwiches</strong> <span class="by">by Nicole</span></div>
+        <div class="past-dish"><strong>Crostini</strong> <span class="by">by Adiva</span></div>
+        <div class="past-dish"><strong>Bubbly + Black &amp; Herbal Teas</strong> <span class="by">by Anne</span></div>
+      </div>
+    </div>
+
+    <!-- Jan 2026 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">❄️ Winter Classics</div>
+        <div class="past-event-date">Jan 8, 2026 — Hosted by Christina Sheffey</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><strong>Moroccan-Spiced Sweet Potatoes &amp; Cauliflower</strong> <span class="by">by Nicole</span></div>
+        <div class="past-dish"><strong>Winter Salad</strong> <span class="by">by Susan</span></div>
+        <div class="past-dish"><strong>Carrot Soup</strong> <span class="by">by Soph</span></div>
+        <div class="past-dish"><strong>Fennel, Kale and Rice Gratin</strong> <span class="by">by Julie</span></div>
+        <div class="past-dish"><strong>French Onion Roast Beef Sliders</strong> <span class="by">by Adiva</span></div>
+        <div class="past-dish"><strong>Vegetarian Pot Pie</strong> <span class="by">by Christina</span></div>
+        <div class="past-dish"><strong>Berry Crumble Bars</strong> <span class="by">by Sandy</span></div>
+      </div>
+    </div>
+
+    <!-- Dec 2025 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">🍪 Cookie Swap</div>
+        <div class="past-event-date">Dec 10, 2025 — Hosted by Sandy &amp; Julie</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><em>Cookie swap — everyone brought their favorite cookies!</em></div>
+      </div>
+    </div>
+
+    <!-- Nov 2025 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">🫒 Ottolenghi</div>
+        <div class="past-event-date">Nov 13, 2025 — Hosted by Sophie</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><strong>Roasted Aubergines &amp; Butter Beans in Chilli Pesto</strong> <span class="by">by Nicole</span></div>
+        <div class="past-dish"><strong>Caramelized Garlic Tart</strong> <span class="by">by Susan Gage</span></div>
+        <div class="past-dish"><strong>Tofu Lettuce Wrap</strong> <span class="by">by Adiva Shah</span></div>
+        <div class="past-dish"><strong>Lamb Shank Chili with Beans</strong> <span class="by">by Sophie</span></div>
+        <div class="past-dish"><strong>Butternut Squash, Leek and Za'atar Pie</strong> <span class="by">by Julie</span></div>
+        <div class="past-dish"><strong>Cannoli Cake</strong> <span class="by">by Sandy</span></div>
+      </div>
+    </div>
+
+    <!-- Oct 2025 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">🧣 Sweater Weather</div>
+        <div class="past-event-date">Oct 9, 2025 — Hosted by Susan Gage</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><strong>Quinoa &amp; Veggie-Stuffed Bell Peppers</strong> <span class="by">by Nicole</span></div>
+        <div class="past-dish"><strong>Roasted Brussels Sprouts</strong> <span class="by">by Maggie</span></div>
+        <div class="past-dish"><strong>Cornbread</strong> <span class="by">by Sophie</span></div>
+        <div class="past-dish"><strong>Ratatouille Soup</strong> <span class="by">by Susan G</span></div>
+        <div class="past-dish"><strong>Rouladen &amp; Spaetzle</strong> <span class="by">by Anne</span></div>
+        <div class="past-dish"><strong>Pot Roast</strong> <span class="by">by Jude</span></div>
+        <div class="past-dish"><strong>Pumpkin Pie</strong> <span class="by">by Giovanna</span></div>
+        <div class="past-dish"><strong>Cake</strong> <span class="by">by Sandy</span></div>
+      </div>
+    </div>
+
+    <!-- Sep 2025 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">🐟 Bounty of the Sea</div>
+        <div class="past-event-date">Sep 18, 2025 — Hosted by Susan &amp; Michael Franklin</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><strong>Miso Salmon Hand Rolls</strong> <span class="by">by Adiva Shah</span></div>
+        <div class="past-dish"><strong>Shrimp Rolls</strong> <span class="by">by Sophie</span></div>
+        <div class="past-dish"><strong>Poke</strong> <span class="by">by Laura</span></div>
+        <div class="past-dish"><strong>Shrimp with Cocktail Sauce</strong> <span class="by">by Lucy</span></div>
+        <div class="past-dish"><strong>Shrimp &amp; Chorizo Paella</strong> <span class="by">by Nicole</span></div>
+        <div class="past-dish"><strong>Grilled Salmon</strong> <span class="by">by Susan &amp; Michael</span></div>
+        <div class="past-dish"><strong>Durango Cookies + Ice Cream</strong> <span class="by">by Julie Jacobson</span></div>
+        <div class="past-dish"><strong>Madeleines</strong> <span class="by">by Nicole Yu</span></div>
+        <div class="past-dish"><strong>Wine</strong> <span class="by">by Sarah Larson</span></div>
+      </div>
+    </div>
+
+    <!-- Aug 2025 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">🌉 SF Restaurants / Dishes</div>
+        <div class="past-event-date">Aug 21, 2025 — Hosted by Susan &amp; Christina</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><strong>Double Tomato Focaccia (Liguria Bakery)</strong> <span class="by">by Julie Jacobson</span></div>
+        <div class="past-dish"><strong>Roasted Bell Pepper (Trattoria Contadina)</strong> <span class="by">by Alina Knobloch</span></div>
+        <div class="past-dish"><strong>Focaccia</strong> <span class="by">by Susan Franklin</span></div>
+        <div class="past-dish"><strong>Tomato &amp; Peach Panzanella (Frascati)</strong> <span class="by">by Susan Gage</span></div>
+        <div class="past-dish"><strong>Maccheroncelli (Seven Hills)</strong> <span class="by">by Christina Webber</span></div>
+        <div class="past-dish"><strong>Carne Asada Burritos (La Taqueria)</strong> <span class="by">by Nicole</span></div>
+        <div class="past-dish"><strong>Stir Fried Green Beans (Slanted Door)</strong> <span class="by">by Adiva Shah</span></div>
+        <div class="past-dish"><strong>Garlic Noodles (Thanh Long)</strong> <span class="by">by Christina Sheffey</span></div>
+        <div class="past-dish"><strong>Frangipane Tart (Tartine)</strong> <span class="by">by Sophie</span></div>
+        <div class="past-dish"><strong>Tres Leche (Norte 54 + Nopalito)</strong> <span class="by">by Sandy</span></div>
+        <div class="past-dish"><strong>Aperol Spritz</strong> <span class="by">by Susan Gage</span></div>
+      </div>
+    </div>
+
+    <!-- Jul 2025 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">🇺🇸 Fourth of July</div>
+        <div class="past-event-date">Jul 10, 2025 — Hosted by Sarah Taber</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><strong>Deconstructed Mission-Style Hot Dogs</strong> <span class="by">by Nicole</span></div>
+        <div class="past-dish"><strong>Cole Slaw</strong> <span class="by">by Yvette</span></div>
+        <div class="past-dish"><strong>Watermelon Blueberry Salad</strong> <span class="by">by Lucy</span></div>
+        <div class="past-dish"><strong>Quiche Ricotta &amp; Spinach</strong> <span class="by">by Giovanna</span></div>
+        <div class="past-dish"><strong>Corn Lasagna</strong> <span class="by">by Susan G</span></div>
+        <div class="past-dish"><strong>Tri-Tip &amp; Panzanella Salad</strong> <span class="by">by Anne Z</span></div>
+        <div class="past-dish"><strong>Lamb Skewers</strong> <span class="by">by Sarah</span></div>
+        <div class="past-dish"><strong>Grilled Chicken Strips</strong> <span class="by">by Susan F</span></div>
+        <div class="past-dish"><strong>Ice Cream</strong> <span class="by">by Sophie</span></div>
+        <div class="past-dish"><strong>Rosé Sangria</strong> <span class="by">by Susan G</span></div>
+      </div>
+    </div>
+
+    <!-- Jun 2025 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">🍅 Summer Produce</div>
+        <div class="past-event-date">Jun 12, 2025 — Hosted by Anne Zieminski</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><strong>Roasted Brussels</strong> <span class="by">by Allen Shain</span></div>
+        <div class="past-dish"><strong>Heirloom Tomato Salad</strong> <span class="by">by Lucy Lin</span></div>
+        <div class="past-dish"><strong>Buffalo Cauliflower</strong> <span class="by">by Maddy Li</span></div>
+        <div class="past-dish"><strong>Spicy Corn &amp; Shishito Salad</strong> <span class="by">by Christina Sheffey</span></div>
+        <div class="past-dish"><strong>Grilled Zucchini with Mint</strong> <span class="by">by Giovanna Brancati</span></div>
+        <div class="past-dish"><strong>Pasta Primavera with Peas</strong> <span class="by">by Adiva Shah</span></div>
+        <div class="past-dish"><strong>Corn &amp; Sausage Pasta</strong> <span class="by">by Sophie Xu</span></div>
+        <div class="past-dish"><strong>Pulled Pork Sliders</strong> <span class="by">by Anne Zieminski</span></div>
+        <div class="past-dish"><strong>Apricot Tart</strong> <span class="by">by Susan Gage</span></div>
+        <div class="past-dish"><strong>Mocha Cake</strong> <span class="by">by Sandy Sumano</span></div>
+        <div class="past-dish"><strong>Peach Ginger Spritz</strong> <span class="by">by Nicole Flowers</span></div>
+        <div class="past-dish"><strong>Bellini</strong> <span class="by">by Matthew De Mott</span></div>
+      </div>
+    </div>
+
+    <!-- May 2025 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">🇲🇽 Celebrating Cinco de Mayo</div>
+        <div class="past-event-date">May 8, 2025 — Hosted by Nicole Flowers</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><strong>Spicy Queso &amp; Chips</strong> <span class="by">by Adiva Shah</span></div>
+        <div class="past-dish"><strong>Jicama Salad</strong> <span class="by">by Lucy Lin</span></div>
+        <div class="past-dish"><strong>Elote</strong> <span class="by">by Fahdah AlSubaihin</span></div>
+        <div class="past-dish"><strong>Street Corn Chicken Enchiladas</strong> <span class="by">by Nicole Flowers</span></div>
+        <div class="past-dish"><strong>Chopped Salad with Jalapeño Ranch</strong> <span class="by">by Susan Gage</span></div>
+        <div class="past-dish"><strong>Tortilla Soup</strong> <span class="by">by Chris Webber</span></div>
+        <div class="past-dish"><strong>Taco Salad with Chicken</strong> <span class="by">by Sarah &amp; Steve Taber</span></div>
+        <div class="past-dish"><strong>Flan</strong> <span class="by">by Sandy Sumano</span></div>
+        <div class="past-dish"><strong>Horchata</strong> <span class="by">by Sophie Xu</span></div>
+        <div class="past-dish"><strong>Mexican Beer</strong> <span class="by">by Steve Taber</span></div>
+      </div>
+    </div>
+
+    <!-- Apr 2025 -->
+    <div class="past-event-card">
+      <div class="past-event-header">
+        <div class="past-event-title">⭐ Your Signature Dish</div>
+        <div class="past-event-date">Apr 10, 2025 — Hosted by Adiva Shah</div>
+      </div>
+      <div class="past-event-dishes">
+        <div class="past-dish"><strong>Cowboy Caviar</strong> <span class="by">by Nicole</span></div>
+        <div class="past-dish"><strong>Corn Fritters</strong> <span class="by">by Anne</span></div>
+        <div class="past-dish"><strong>Smoked Salmon Quesadillas</strong> <span class="by">by Susan</span></div>
+        <div class="past-dish"><strong>Phở</strong> <span class="by">by Adiva</span></div>
+        <div class="past-dish"><strong>Meatballs in Tomato Sauce</strong> <span class="by">by Joyce</span></div>
+        <div class="past-dish"><strong>Lasagna (Vegetarian!)</strong> <span class="by">by Soph</span></div>
+        <div class="past-dish"><strong>Banana Pudding</strong> <span class="by">by Sandy</span></div>
+        <div class="past-dish"><strong>Cheesecake-ish</strong> <span class="by">by Soph</span></div>
+        <div class="past-dish"><strong>French 75</strong> <span class="by">by Susan</span></div>
+      </div>
+    </div>
+
+  </div><!-- end archive page -->
+
+  <!-- PAGE: HOW IT WORKS -->
+  <div class="page" id="page-howto">
+    <div class="how-it-works">
+      <h3>How Russian Hill Cooking Club Works</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <p><strong>Pick a slot</strong><br>Browse the open categories and claim one that speaks to you.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <p><strong>Cook & share</strong><br>Make your dish and link your recipe so others can try it too!</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <p><strong>Gather & eat</strong><br>Show up, share stories, and enjoy an incredible meal together.</p>
+        </div>
+      </div>
+    </div>
+  </div><!-- end howto page -->
+
+</div><!-- end container -->
+
+<footer>
+  Made with ❤️ by Russian Hill Cooking Club · <a href="mailto:susan.gage@email.com">Contact the Host</a>
+</footer>
+
+<script>
+  // =================================================================
+  // ===== GOOGLE SHEETS CONNECTION =====
+  // Paste your deployed Google Apps Script URL below:
+  // =================================================================
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEcLWC48jCxtozG5IHlApwwbT5VluG313bfdSMadxCTYy_-SYJNo9h6pc2SGSYBHaz/exec';
+  // =================================================================
+
+  // ===== TAB NAVIGATION =====
+  function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // ===== FLOATING FOOD EMOJIS =====
+  const foodEmojis = ['🍕','🥑','🍋','🧄','🌶️','🫒','🧀','🍅','🥖','🍳','🥘','🍷','🍰','🥗','🫕','🍜'];
+  const emojiContainer = document.getElementById('floatingEmojis');
+  foodEmojis.forEach((emoji, i) => {
+    const span = document.createElement('span');
+    span.textContent = emoji;
+    span.style.left = Math.random() * 100 + '%';
+    span.style.animationDelay = (Math.random() * 18) + 's';
+    span.style.animationDuration = (14 + Math.random() * 10) + 's';
+    span.style.fontSize = (1.2 + Math.random() * 1.5) + 'rem';
+    emojiContainer.appendChild(span);
+  });
+
+  // =================================================================
+  // ===== EVENT DATA =====
+  // This is the fallback if Google Sheets isn't connected yet.
+  // Once connected, the page auto-loads from your sheet instead.
+  // =================================================================
+  const currentEvent = {
+    theme: 'Samin Nosrat — Our Beloved East Bay Chef',
+    emoji: '🍋',
+    month: "April",
+    description: "Whether you draw inspiration from her groundbreaking Salt, Fat, Acid, Heat — which taught us that mastering four elements is the key to great cooking — or her newest cookbook Good Things, full of warm, generous recipes meant to be shared, pick a dish that channels Samin's joyful, flavor-first spirit.",
+    date: 'April 9th, 2026',
+    time: '6:30 PM',
+    host: 'Susan Gage',
+    dishes: [
+      { category: 'appetizer', member: '', dish: '', recipe: '', row: null },
+      { category: 'appetizer', member: '', dish: '', recipe: '', row: null },
+      { category: 'appetizer', member: '', dish: '', recipe: '', row: null },
+      { category: 'main', member: '', dish: '', recipe: '', row: null },
+      { category: 'main', member: '', dish: '', recipe: '', row: null },
+      { category: 'main', member: '', dish: '', recipe: '', row: null },
+      { category: 'dessert', member: '', dish: '', recipe: '', row: null },
+      { category: 'dessert', member: '', dish: '', recipe: '', row: null },
+      { category: 'beverage', member: '', dish: '', recipe: '', row: null },
+    ]
+  };
+
+  // ===== LOAD DATA FROM GOOGLE SHEETS =====
+  async function loadFromSheet() {
+    if (!APPS_SCRIPT_URL) {
+      console.log('No Apps Script URL set — using local fallback data.');
+      renderDishes();
+      return;
+    }
+
+    try {
+      // Show loading state
+      document.querySelectorAll('.dish-grid').forEach(g => {
+        g.innerHTML = '<div class="dish-card empty"><div class="dish-empty-text">Loading from Google Sheets...</div></div>';
+      });
+
+      const res = await fetch(APPS_SCRIPT_URL);
+      const data = await res.json();
+
+      if (data.error) {
+        console.error('Sheet error:', data.error);
+        renderDishes();
+        return;
+      }
+
+      // Update event metadata
+      if (data.date) currentEvent.date = data.date;
+      if (data.host) currentEvent.host = data.host;
+      if (data.theme) {
+        // Keep our custom theme title/description — just update the theme card date/host
+        document.querySelector('.event-detail:nth-child(1) span').textContent = data.date || currentEvent.date;
+        document.querySelector('.event-detail:nth-child(3) span').textContent = 'Hosted by ' + (data.host || currentEvent.host);
+      }
+
+      // Update dishes from sheet
+      if (data.dishes && data.dishes.length > 0) {
+        currentEvent.dishes = data.dishes.map(d => ({
+          category: d.category,
+          member: d.member || '',
+          dish: d.dish || '',
+          recipe: d.recipe || '',
+          row: d.row || null
+        }));
+      }
+
+      renderDishes();
+      console.log('Loaded sign-ups from Google Sheets!');
+
+    } catch (err) {
+      console.error('Failed to load from sheet:', err);
+      renderDishes(); // Fall back to local data
+    }
+  }
+
+  // ===== RENDER SIGN-UP CARDS FROM DATA =====
+  function renderDishes() {
+    const categories = {
+      appetizer: { selector: '.cat-appetizer .dish-grid', icon: '🥗', title: 'Appetizers' },
+      main:      { selector: '.cat-main .dish-grid',      icon: '🍲', title: 'Mains' },
+      dessert:   { selector: '.cat-dessert .dish-grid',   icon: '🍰', title: 'Desserts' },
+      beverage:  { selector: '.cat-beverage .dish-grid',  icon: '🍹', title: 'Beverages' },
+    };
+
+    Object.keys(categories).forEach(cat => {
+      const grid = document.querySelector(categories[cat].selector);
+      if (!grid) return;
+      const items = currentEvent.dishes.filter(d => d.category === cat);
+      grid.innerHTML = '';
+
+      items.forEach((item, idx) => {
+        const card = document.createElement('div');
+        if (item.member) {
+          card.className = 'dish-card filled';
+          let html = `
+            <div class="dish-member">${item.member}</div>
+            <div class="dish-name">${item.dish}</div>
+          `;
+          if (item.recipe) {
+            html += `<a class="recipe-link" href="${item.recipe}" target="_blank">📖 View Recipe</a>`;
+          }
+          card.innerHTML = html;
+        } else {
+          card.className = 'dish-card empty';
+          card.innerHTML = '<div class="dish-empty-text">Open slot — claim it!</div>';
+          card.addEventListener('click', () => openSignupForm(card, item));
+        }
+        grid.appendChild(card);
+      });
+    });
+  }
+
+  // ===== SIGN-UP FORM LOGIC =====
+  function openSignupForm(card, item) {
+    if (card.classList.contains('signing-up')) return;
+
+    card.classList.remove('empty');
+    card.classList.add('signing-up');
+    card.innerHTML = `
+      <div class="signup-form">
+        <input type="text" class="signup-name" placeholder="Your name" autocomplete="off" />
+        <input type="text" class="signup-dish" placeholder="What are you bringing?" autocomplete="off" />
+        <input type="url" class="signup-recipe" placeholder="Recipe link (optional)" autocomplete="off" />
+        <div class="signup-form-buttons">
+          <button class="btn-signup" onclick="submitSignup(this)">Sign Up</button>
+          <button class="btn-cancel" onclick="cancelSignup(this)">Cancel</button>
+        </div>
+      </div>
+    `;
+    card._item = item;
+    card.querySelector('.signup-name').focus();
+  }
+
+  async function submitSignup(btn) {
+    const card = btn.closest('.dish-card');
+    const name = card.querySelector('.signup-name').value.trim();
+    const dish = card.querySelector('.signup-dish').value.trim();
+    const recipe = card.querySelector('.signup-recipe').value.trim();
+
+    if (!name || !dish) {
+      if (!name) card.querySelector('.signup-name').style.borderColor = 'var(--coral)';
+      if (!dish) card.querySelector('.signup-dish').style.borderColor = 'var(--coral)';
+      return;
+    }
+
+    // Disable buttons while saving
+    btn.textContent = 'Saving...';
+    btn.disabled = true;
+
+    // Update local data
+    const item = card._item;
+    item.member = name;
+    item.dish = dish;
+    item.recipe = recipe;
+
+    // Save to Google Sheets if connected
+    if (APPS_SCRIPT_URL && item.row) {
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            row: item.row,
+            member: name,
+            dish: dish,
+            recipe: recipe
+          })
+        });
+        console.log('Saved to Google Sheets!');
+      } catch (err) {
+        console.error('Failed to save to sheet:', err);
+      }
+    }
+
+    // Re-render
+    renderDishes();
+  }
+
+  function cancelSignup(btn) {
+    const card = btn.closest('.dish-card');
+    card.classList.remove('signing-up');
+    card.classList.add('empty');
+    card.innerHTML = '<div class="dish-empty-text">Open slot — claim it!</div>';
+    card.addEventListener('click', () => openSignupForm(card, card._item));
+  }
+
+  // ===== INITIALIZE =====
+  loadFromSheet();
+</script>
+
+</body>
+</html>
