@@ -925,21 +925,54 @@
 
 <script>
   // =================================================================
-  // ===== PASSWORD — change this to whatever you want! =====
+  // ===== GOOGLE SHEETS CONNECTION =====
   // =================================================================
-  const SITE_PASSWORD = 'Larkin';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEcLWC48jCxtozG5IHlApwwbT5VluG313bfdSMadxCTYy_-SYJNo9h6pc2SGSYBHaz/exec';
   // =================================================================
 
-  function checkPassword() {
+  // Password is stored in memory after login (never in the HTML source)
+  let userPassword = '';
+
+  // Check password against the server (Google Apps Script)
+  async function checkPassword() {
     const input = document.getElementById('passwordInput');
     const error = document.getElementById('passwordError');
-    if (input.value.toLowerCase().trim() === SITE_PASSWORD.toLowerCase()) {
-      document.getElementById('passwordOverlay').classList.add('hidden');
-      sessionStorage.setItem('rhncc_auth', 'true');
-    } else {
+    const btn = document.querySelector('.password-box button');
+    const pw = input.value.trim();
+
+    if (!pw) {
       input.classList.add('error');
-      error.textContent = 'Hmm, that\'s not it — ask the group chat!';
+      error.textContent = 'Please enter a password';
       setTimeout(() => input.classList.remove('error'), 400);
+      return;
+    }
+
+    // Show loading state
+    btn.textContent = 'Checking...';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(APPS_SCRIPT_URL + '?password=' + encodeURIComponent(pw));
+      const data = await res.json();
+
+      if (data.error === 'unauthorized') {
+        input.classList.add('error');
+        error.textContent = "Hmm, that's not it — ask the group chat!";
+        setTimeout(() => input.classList.remove('error'), 400);
+        btn.textContent = 'Let Me In';
+        btn.disabled = false;
+      } else {
+        // Password correct! Store it for future API calls
+        userPassword = pw;
+        sessionStorage.setItem('rhncc_pw', pw);
+        document.getElementById('passwordOverlay').classList.add('hidden');
+        // We already have the data from the auth check, so use it
+        handleSheetData(data);
+      }
+    } catch (err) {
+      error.textContent = 'Something went wrong — try again';
+      btn.textContent = 'Let Me In';
+      btn.disabled = false;
     }
   }
 
@@ -948,16 +981,25 @@
     if (e.key === 'Enter') checkPassword();
   });
 
-  // Skip password if already authenticated this session
-  if (sessionStorage.getItem('rhncc_auth') === 'true') {
-    document.getElementById('passwordOverlay').classList.add('hidden');
-  }
-
-  // =================================================================
-  // ===== GOOGLE SHEETS CONNECTION =====
-  // Paste your deployed Google Apps Script URL below:
-  // =================================================================
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEcLWC48jCxtozG5IHlApwwbT5VluG313bfdSMadxCTYy_-SYJNo9h6pc2SGSYBHaz/exec';
+  // Auto-login if password is saved from this session
+  (async function tryAutoLogin() {
+    const savedPw = sessionStorage.getItem('rhncc_pw');
+    if (savedPw && APPS_SCRIPT_URL) {
+      userPassword = savedPw;
+      try {
+        const res = await fetch(APPS_SCRIPT_URL + '?password=' + encodeURIComponent(savedPw));
+        const data = await res.json();
+        if (data.error !== 'unauthorized') {
+          document.getElementById('passwordOverlay').classList.add('hidden');
+          handleSheetData(data);
+          return;
+        }
+      } catch (e) {}
+      // If auto-login failed, clear saved password
+      sessionStorage.removeItem('rhncc_pw');
+      userPassword = '';
+    }
+  })();
   // =================================================================
 
   // ===== TAB NAVIGATION =====
@@ -1007,56 +1049,35 @@
     ]
   };
 
-  // ===== LOAD DATA FROM GOOGLE SHEETS =====
-  async function loadFromSheet() {
-    if (!APPS_SCRIPT_URL) {
-      console.log('No Apps Script URL set — using local fallback data.');
+  // ===== HANDLE DATA FROM GOOGLE SHEETS =====
+  // Called after successful password check (data comes from the auth response)
+  function handleSheetData(data) {
+    if (!data || data.error) {
       renderDishes();
       return;
     }
 
-    try {
-      // Show loading state
-      document.querySelectorAll('.dish-grid').forEach(g => {
-        g.innerHTML = '<div class="dish-card empty"><div class="dish-empty-text">Loading from Google Sheets...</div></div>';
-      });
-
-      const res = await fetch(APPS_SCRIPT_URL);
-      const data = await res.json();
-
-      if (data.error) {
-        console.error('Sheet error:', data.error);
-        renderDishes();
-        return;
-      }
-
-      // Update event metadata
-      if (data.date) currentEvent.date = data.date;
-      if (data.host) currentEvent.host = data.host;
-      if (data.theme) {
-        // Keep our custom theme title/description — just update the theme card date/host
-        document.querySelector('.event-detail:nth-child(1) span').textContent = data.date || currentEvent.date;
-        document.querySelector('.event-detail:nth-child(3) span').textContent = 'Hosted by ' + (data.host || currentEvent.host);
-      }
-
-      // Update dishes from sheet
-      if (data.dishes && data.dishes.length > 0) {
-        currentEvent.dishes = data.dishes.map(d => ({
-          category: d.category,
-          member: d.member || '',
-          dish: d.dish || '',
-          recipe: d.recipe || '',
-          row: d.row || null
-        }));
-      }
-
-      renderDishes();
-      console.log('Loaded sign-ups from Google Sheets!');
-
-    } catch (err) {
-      console.error('Failed to load from sheet:', err);
-      renderDishes(); // Fall back to local data
+    // Update event metadata
+    if (data.date) currentEvent.date = data.date;
+    if (data.host) currentEvent.host = data.host;
+    if (data.theme) {
+      document.querySelector('.event-detail:nth-child(1) span').textContent = data.date || currentEvent.date;
+      document.querySelector('.event-detail:nth-child(3) span').textContent = 'Hosted by ' + (data.host || currentEvent.host);
     }
+
+    // Update dishes from sheet
+    if (data.dishes && data.dishes.length > 0) {
+      currentEvent.dishes = data.dishes.map(d => ({
+        category: d.category,
+        member: d.member || '',
+        dish: d.dish || '',
+        recipe: d.recipe || '',
+        row: d.row || null
+      }));
+    }
+
+    renderDishes();
+    console.log('Loaded sign-ups from Google Sheets!');
   }
 
   // ===== RENDER SIGN-UP CARDS FROM DATA =====
@@ -1147,6 +1168,7 @@
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            password: userPassword,
             row: item.row,
             member: name,
             dish: dish,
@@ -1174,7 +1196,9 @@
   }
 
   // ===== INITIALIZE =====
-  loadFromSheet();
+  // Data loads automatically after password check succeeds.
+  // Render fallback dishes in case no auto-login.
+  renderDishes();
 </script>
 
 </body>
