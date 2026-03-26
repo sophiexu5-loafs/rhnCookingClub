@@ -458,6 +458,84 @@
   }
   footer a { color: var(--coral); text-decoration: none; font-weight: 600; }
 
+  /* ===== PASSWORD GATE ===== */
+  .password-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, var(--coral) 0%, var(--pink) 40%, var(--lavender) 100%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease;
+  }
+  .password-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .password-box {
+    background: white;
+    border-radius: 24px;
+    padding: 48px 40px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    max-width: 400px;
+    width: 90%;
+  }
+  .password-box .lock-emoji { font-size: 3rem; margin-bottom: 12px; }
+  .password-box h2 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+  .password-box p {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+  .password-box input {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    padding: 12px 16px;
+    border: 2px solid var(--light-gray);
+    border-radius: 14px;
+    outline: none;
+    width: 100%;
+    text-align: center;
+    transition: border-color 0.2s ease;
+    background: var(--cream);
+  }
+  .password-box input:focus { border-color: var(--coral); }
+  .password-box input.error { border-color: var(--coral); animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+  .password-box button {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 36px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--coral), var(--pink));
+    color: white;
+    margin-top: 14px;
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+  .password-box button:hover { transform: scale(1.03); box-shadow: 0 4px 15px rgba(255,107,107,0.3); }
+  .password-error {
+    color: var(--coral);
+    font-size: 0.85rem;
+    margin-top: 10px;
+    min-height: 1.2em;
+  }
+
   /* ===== RESPONSIVE ===== */
   @media (max-width: 600px) {
     .club-name { font-size: 2.4rem; }
@@ -471,6 +549,18 @@
 </style>
 </head>
 <body>
+
+<!-- ===== PASSWORD GATE ===== -->
+<div class="password-overlay" id="passwordOverlay">
+  <div class="password-box">
+    <div class="lock-emoji">🍳</div>
+    <h2>Russian Hill Cooking Club</h2>
+    <p>Members only — enter the password to continue</p>
+    <input type="password" id="passwordInput" placeholder="Enter password" autocomplete="off" />
+    <button onclick="checkPassword()">Let Me In</button>
+    <div class="password-error" id="passwordError"></div>
+  </div>
+</div>
 
 <!-- Floating background emojis -->
 <div class="floating-emojis" id="floatingEmojis"></div>
@@ -834,6 +924,35 @@
 </footer>
 
 <script>
+  // =================================================================
+  // ===== PASSWORD — change this to whatever you want! =====
+  // =================================================================
+  const SITE_PASSWORD = 'russianhill';
+  // =================================================================
+
+  function checkPassword() {
+    const input = document.getElementById('passwordInput');
+    const error = document.getElementById('passwordError');
+    if (input.value.toLowerCase().trim() === SITE_PASSWORD.toLowerCase()) {
+      document.getElementById('passwordOverlay').classList.add('hidden');
+      sessionStorage.setItem('rhncc_auth', 'true');
+    } else {
+      input.classList.add('error');
+      error.textContent = 'Hmm, that\'s not it — ask the group chat!';
+      setTimeout(() => input.classList.remove('error'), 400);
+    }
+  }
+
+  // Allow Enter key to submit
+  document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') checkPassword();
+  });
+
+  // Skip password if already authenticated this session
+  if (sessionStorage.getItem('rhncc_auth') === 'true') {
+    document.getElementById('passwordOverlay').classList.add('hidden');
+  }
+
   // =================================================================
   // ===== GOOGLE SHEETS CONNECTION =====
   // Paste your deployed Google Apps Script URL below:
